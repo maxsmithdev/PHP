@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Subscribe</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript" src="http://autobahn.s3.amazonaws.com/js/autobahn.min.js"></script>
+    <!-- <script src="http://requirejs.org/docs/release/2.1.11/minified/require.js"></script> -->
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var player_id = 12;
+        var channel_id = 'com.channel.89.12.17566136621';
+        var conn = new ab.Session('ws://localhost:8010/pubsub', function() {
+            console.log("Connecting...");
+            conn.subscribe(channel_id, function(topic, data) {
+                console.log("topic : " + topic + ", data: " + data);
+                if(data[0]['player_id'] == 12){
+                    $('.message').append("<div style='float:right;text-align:right;color:blue'>"+data[0]['text']+"</div></br>");
+                }else{
+                    $('.message').append("<div style='float:left;text-align:left;color:red'>"+data[0]['text']+"</div></br>");
+                }
+            });
+            
+        }, function() {
+            console.log("Close.");
+        }, {'skipSubprotocolChecksu': true});
+
+        var msgbox = $("input[name='msgbox']");
+        $(".submit").click(function() {
+            console.log("Sender Click.");
+            var msg = msgbox.val();
+            msgbox.val("");
+            conn.publish(channel_id, [{player_id: 89, text: msg, channel_id: channel_id}]);
+        });
+    });
+    </script>
+</head>
+
+<body>
+    <div class="message" style="position: absolute;bottom:40px;width:90%"></div>
+    <form autocomplete="off">
+        <div style="width:95%;position: absolute;bottom: 10px;">
+            <span style="float:left;width:90%"><input type="text" name="msgbox" placeholder="Message..." style="width:95%" /></span>
+            <span style="float:left;width:10%"><input type="button" value="Send" class="submit" style="width:100%" /> </span>
+        </div>
+    </form>
+</body>
+
+</html>

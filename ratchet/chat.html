@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Chat</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var msgbox = $("input[name='msgbox']");
+        $(".submit").click(function() {
+            console.log("Sender Click.");
+            var msg = msgbox.val();
+            msgbox.val("");
+            conn.send(msg);
+        });
+
+        if ("WebSocket" in window) {
+            var conn = new WebSocket('ws://localhost:8010/chat');
+            conn.onopen = function(event) {
+                console.log("Socket Listener.");
+            };
+            conn.onclose = function() {
+                console.log("Socket Close.");
+            };
+            conn.onerror = function() {
+                console.log("Socket Error.");
+            };
+            conn.onmessage = function(e) {
+                //console.log(e.data);
+                $(".message").append("<p><i>" + e.data +"</i></p>");
+            };
+        }
+    });
+    </script>
+</head>
+
+<body>
+    <div class="message"></div>
+    <form autocomplete="off" >
+        <input type="text" name="msgbox" placeholder="Message..." />
+        <input type="button" value="Send" class="submit" /> 
+    </form>
+</body>
+
+</html>

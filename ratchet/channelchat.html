@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Chat Client</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript" src="http://autobahn.s3.amazonaws.com/js/autobahn.min.js"></script>
+    <!-- <script src="http://requirejs.org/docs/release/2.1.11/minified/require.js"></script> -->
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var globalTopicId = null;
+        var conn = new ab.Session('ws://localhost:8010/pubsub', function() {
+            //console.log("Connecting...");
+            $('.state').html("Connecting...");
+            if(globalTopicId == null){
+                globalTopicId = $("select[name='channel'] option:selected").val();
+                conn.subscribe(globalTopicId, function(topic, data) {
+                    $('.message').append("<p>"+data[0]['message']+"</p>");
+                });
+            }
+
+            $("select[name='channel']").change(function(){
+                //console.log(globalTopicId);
+                if(globalTopicId != null && globalTopicId != undefined){
+                    //console.log("Topic : " + globalTopicId + " -> unsubscribe");
+                    conn.unsubscribe(globalTopicId);
+                }
+
+                globalTopicId = $(this).val();
+                conn.subscribe(globalTopicId, function(topic, data) {
+                    //console.log("Topic (Subscribe) : " + topic + ", data: " + data);
+                });
+
+                //console.log("Current : " + globalTopicId);
+            });
+
+        }, function() {
+
+            $('.state').html("Wamp is closing!");
+            ///console.log(globalTopicId + " is Closing.");
+        }, {'skipSubprotocolCheck': true});
+
+        var msgbox = $("input[name='msgbox']");
+        $(".submit").click(function() {
+            //console.log("Sender Click.");
+            var msg = msgbox.val();
+            msgbox.val("");
+            conn.publish(globalTopicId, [{userId: 89, message: msg}]);
+        });
+
+    });
+    </script>
+</head>
+
+<body>
+    <select name="channel">
+        <option value="com.channel.89.1466136621">Channel 1</option>
+        <option value="com.channel.2.1466136664">Channel 2</option>
+        <option value="com.channel.12.1466151381">Channel 3</option>
+        <option value="com.channel.88.1466157009">Channel 4</option>
+    </select>
+    <div class="state"></div>
+    <div class="message"></div>
+    <form autocomplete="off">
+        <input type="text" name="msgbox" placeholder="Message..." />
+        <input type="button" value="Send" class="submit" /> </form>
+</body>
+
+</html>

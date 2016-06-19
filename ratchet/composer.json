@@ -1,0 +1,16 @@
+{
+  "autoload": {
+    "psr-0": {
+      "MyAdd": "src"
+    }
+  },
+  "require": {
+    "cboden/ratchet": "0.3.*",
+    "slim/slim": "^3.1",
+    "slim/csrf": "^0.7.0",
+    "slim/php-view": "^2.0",
+    "catfan/Medoo": "^1.0",
+    "monolog/monolog": "^1.19",
+    "codeguy/upload": "^1.3"
+  }
+}
